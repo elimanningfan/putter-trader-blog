@@ -1,10 +1,12 @@
 import { getSinglePost } from '../../../lib/ghost';
 
-export default async function Post({
-  params,
-}: {
-  params: { slug: string }
-}) {
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
+
+const Post = async ({ params }: PageProps) => {
   const post = await getSinglePost(params.slug);
 
   if (!post) {
@@ -30,4 +32,6 @@ export default async function Post({
       </div>
     </article>
   );
-}
+};
+
+export default Post;
