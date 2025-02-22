@@ -1,3 +1,4 @@
+import { GetStaticProps, GetStaticPaths } from 'next';
 import { getSinglePost } from '../../../lib/ghost';
 import Image from 'next/image';
 import { Post } from '../../types';
@@ -8,9 +9,10 @@ interface PageParams {
 
 interface PageProps {
   params: PageParams;
+  post: Post | null;
 }
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
   const post = await getSinglePost(context.params.slug) as Post | null;
 
   if (!post) {
@@ -26,7 +28,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   };
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
+export const getStaticPaths: GetStaticPaths<PageParams> = async () => {
   // Add logic to generate static paths for posts
   return {
     paths: [],
@@ -34,11 +36,22 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export default async function Page({
-  params,
-}: {
-  params: { slug: string };
-}) {
+type Props = {
+  params: {
+    slug: string;
+  };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+async function generateMetadata({ params }: Props) {
+  return {
+    title: `Post - ${params.slug}`,
+  };
+}
+
+export { generateMetadata };
+
+export default async function PostPage({ params }: Props) {
   const post = await getSinglePost(params.slug) as Post | null;
 
   if (!post) {
