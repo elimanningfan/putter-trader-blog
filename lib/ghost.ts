@@ -45,3 +45,26 @@ export async function getTags() {
             return [];
         });
 }
+
+// Pages
+export async function getPages() {
+    return await api.pages
+        .browse({
+            limit: 'all'
+        })
+        .catch(err => {
+            console.error(err);
+            return [];
+        });
+}
+
+export async function getSinglePage(pageSlug: string) {
+    return await api.pages
+        .read({
+            slug: pageSlug
+        })
+        .catch(err => {
+            console.error(err);
+            return null;
+        });
+}
