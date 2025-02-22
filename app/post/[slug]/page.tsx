@@ -1,3 +1,4 @@
+import { GetStaticPropsContext, GetStaticPropsResult } from 'next';
 import { getSinglePost } from '../../../lib/ghost';
 import Image from 'next/image';
 import { Post } from '../../types';
@@ -7,7 +8,11 @@ interface PageProps {
   params: { slug: string };
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
   const post = await getSinglePost(params.slug) as Post | null;
   return {
     title: post?.title || 'Post not found',
@@ -15,7 +20,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function PostPage({ params }: PageProps) {
+export default async function PostPage({
+  params,
+}: PageProps) {
   const post = await getSinglePost(params.slug) as Post | null;
 
   if (!post) {
@@ -44,4 +51,12 @@ export default async function PostPage({ params }: PageProps) {
       </div>
     </article>
   );
+}
+
+export async function getStaticProps({
+  params,
+}: GetStaticPropsContext): Promise<GetStaticPropsResult<{}>> {
+  return {
+    props: {},
+  };
 }
