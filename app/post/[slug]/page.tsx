@@ -7,29 +7,12 @@ interface Post {
   html: string | null;
 }
 
-type PageProps = {
-  params: {
-    slug: string;
-  };
-  searchParams: Record<string, string | string[] | undefined>;
-};
-
-async function generateMetadata({ params }: PageProps) {
-  return {
-    title: `Post - ${params.slug}`,
-  };
-}
-
-export { generateMetadata };
-
-export default function Post({ params }: PageProps) {
-  return (
-    <PostContent slug={params.slug} />
-  );
-}
-
-async function PostContent({ slug }: { slug: string }) {
-  const post = await getSinglePost(slug) as Post | null;
+export default async function Page({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const post = await getSinglePost(params.slug) as Post | null;
 
   if (!post) {
     return (
