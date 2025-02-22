@@ -7,12 +7,29 @@ interface Post {
   html: string | null;
 }
 
-interface Props {
-  params: { slug: string };
+type PageProps = {
+  params: {
+    slug: string;
+  };
+  searchParams: Record<string, string | string[] | undefined>;
+};
+
+async function generateMetadata({ params }: PageProps) {
+  return {
+    title: `Post - ${params.slug}`,
+  };
 }
 
-const Post = async ({ params }: Props) => {
-  const post = await getSinglePost(params.slug) as Post | null;
+export { generateMetadata };
+
+export default function Post({ params }: PageProps) {
+  return (
+    <PostContent slug={params.slug} />
+  );
+}
+
+async function PostContent({ slug }: { slug: string }) {
+  const post = await getSinglePost(slug) as Post | null;
 
   if (!post) {
     return (
@@ -40,6 +57,4 @@ const Post = async ({ params }: Props) => {
       </div>
     </article>
   );
-};
-
-export default Post;
+}
