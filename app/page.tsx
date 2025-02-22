@@ -9,7 +9,12 @@ interface Post {
   slug: string;
 }
 
-export default async function Home() {
+interface Props {
+  params: {};
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default async function Home({ params, searchParams }: Props) {
   const posts = await getPosts();
 
   return (

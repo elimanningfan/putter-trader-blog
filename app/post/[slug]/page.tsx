@@ -1,11 +1,6 @@
 import { getSinglePost } from '../../../lib/ghost';
 import Image from 'next/image';
-
-interface PageProps {
-  params: {
-    slug: string;
-  };
-}
+import { Metadata } from 'next';
 
 interface Post {
   title: string;
@@ -13,7 +8,12 @@ interface Post {
   html: string | null;
 }
 
-const Post = async ({ params }: PageProps) => {
+interface Props {
+  params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+const Post = async ({ params, searchParams }: Props) => {
   const post = await getSinglePost(params.slug) as Post | null;
 
   if (!post) {
