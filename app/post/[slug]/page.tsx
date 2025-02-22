@@ -3,14 +3,11 @@ import Image from 'next/image';
 import { Post } from '../../types';
 import { Metadata } from 'next';
 
-type Props = {
-  params: {
-    slug: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
-};
+interface PageProps {
+  params: { slug: string };
+}
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const post = await getSinglePost(params.slug) as Post | null;
   return {
     title: post?.title || 'Post not found',
@@ -18,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function PostPage({ params }: Props) {
+export default async function PostPage({ params }: PageProps) {
   const post = await getSinglePost(params.slug) as Post | null;
 
   if (!post) {
