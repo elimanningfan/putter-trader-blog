@@ -1,11 +1,38 @@
 import { getSinglePost } from '../../../lib/ghost';
 import Image from 'next/image';
+import { Post } from '../../types';
 
-interface Post {
-  title: string;
-  feature_image: string | null;
-  html: string | null;
+interface PageParams {
+  slug: string;
 }
+
+interface PageProps {
+  params: PageParams;
+}
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const post = await getSinglePost(context.params.slug) as Post | null;
+
+  if (!post) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {
+      post,
+    },
+  };
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Add logic to generate static paths for posts
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
 
 export default async function Page({
   params,

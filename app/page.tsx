@@ -1,16 +1,9 @@
 import { getPosts } from '../lib/ghost';
 import Image from 'next/image';
-
-interface Post {
-  id: string;
-  title: string;
-  feature_image: string | null;
-  excerpt: string;
-  slug: string;
-}
+import { Post } from './types';
 
 export default async function Home() {
-  const posts = await getPosts();
+  const posts = await getPosts() as Post[];
 
   return (
     <main className="min-h-screen p-8 max-w-6xl mx-auto">
