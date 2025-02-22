@@ -1,12 +1,7 @@
-import { GetStaticPropsContext, GetStaticPropsResult } from 'next';
 import { getSinglePost } from '../../../lib/ghost';
 import Image from 'next/image';
 import { Post } from '../../types';
 import { Metadata } from 'next';
-
-interface PageProps {
-  params: { slug: string };
-}
 
 export async function generateMetadata({
   params,
@@ -22,7 +17,9 @@ export async function generateMetadata({
 
 export default async function PostPage({
   params,
-}: PageProps) {
+}: {
+  params: { slug: string };
+}) {
   const post = await getSinglePost(params.slug) as Post | null;
 
   if (!post) {
@@ -51,12 +48,4 @@ export default async function PostPage({
       </div>
     </article>
   );
-}
-
-export async function getStaticProps({
-  params,
-}: GetStaticPropsContext): Promise<GetStaticPropsResult<{}>> {
-  return {
-    props: {},
-  };
 }
