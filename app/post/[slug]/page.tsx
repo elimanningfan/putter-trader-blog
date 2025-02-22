@@ -1,6 +1,5 @@
 import { getSinglePost } from '../../../lib/ghost';
 import Image from 'next/image';
-import { Metadata } from 'next';
 
 interface Post {
   title: string;
@@ -10,10 +9,9 @@ interface Post {
 
 interface Props {
   params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-const Post = async ({ params, searchParams }: Props) => {
+const Post = async ({ params }: Props) => {
   const post = await getSinglePost(params.slug) as Post | null;
 
   if (!post) {
