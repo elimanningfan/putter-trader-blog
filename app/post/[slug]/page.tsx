@@ -1,4 +1,5 @@
 import { getSinglePost } from '../../../lib/ghost';
+import Image from 'next/image';
 
 interface PageProps {
   params: {
@@ -6,8 +7,14 @@ interface PageProps {
   };
 }
 
+interface Post {
+  title: string;
+  feature_image: string | null;
+  html: string | null;
+}
+
 const Post = async ({ params }: PageProps) => {
-  const post = await getSinglePost(params.slug);
+  const post = await getSinglePost(params.slug) as Post | null;
 
   if (!post) {
     return (
@@ -20,11 +27,14 @@ const Post = async ({ params }: PageProps) => {
   return (
     <article className="min-h-screen p-8 max-w-3xl mx-auto">
       {post.feature_image && (
-        <img 
-          src={post.feature_image} 
-          alt={post.title} 
-          className="w-full h-64 object-cover rounded-lg mb-8"
-        />
+        <div className="relative w-full h-64 mb-8">
+          <Image 
+            src={post.feature_image} 
+            alt={post.title} 
+            fill
+            className="object-cover rounded-lg"
+          />
+        </div>
       )}
       <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
       <div className="prose lg:prose-xl max-w-none">
