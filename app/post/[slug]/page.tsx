@@ -1,6 +1,10 @@
 import { getSinglePost } from '../../../lib/ghost';
 
-export default async function Post({ params }: { params: { slug: string } }) {
+export default async function Post({
+  params,
+}: {
+  params: { slug: string }
+}) {
   const post = await getSinglePost(params.slug);
 
   if (!post) {
