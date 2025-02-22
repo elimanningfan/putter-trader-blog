@@ -1,40 +1,7 @@
-import { GetStaticProps, GetStaticPaths } from 'next';
 import { getSinglePost } from '../../../lib/ghost';
 import Image from 'next/image';
 import { Post } from '../../types';
-
-interface PageParams {
-  slug: string;
-}
-
-interface PageProps {
-  params: PageParams;
-  post: Post | null;
-}
-
-export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
-  const post = await getSinglePost(context.params.slug) as Post | null;
-
-  if (!post) {
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      post,
-    },
-  };
-};
-
-export const getStaticPaths: GetStaticPaths<PageParams> = async () => {
-  // Add logic to generate static paths for posts
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
+import { Metadata } from 'next';
 
 type Props = {
   params: {
@@ -43,13 +10,13 @@ type Props = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
-async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const post = await getSinglePost(params.slug) as Post | null;
   return {
-    title: `Post - ${params.slug}`,
+    title: post?.title || 'Post not found',
+    description: post?.excerpt || '',
   };
 }
-
-export { generateMetadata };
 
 export default async function PostPage({ params }: Props) {
   const post = await getSinglePost(params.slug) as Post | null;
