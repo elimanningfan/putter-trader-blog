@@ -7,8 +7,12 @@ const api = new GhostContentAPI({
     version: 'v5.0'
 });
 
+interface GhostError extends Error {
+    code?: string;
+}
+
 // Helper function to handle API errors
-const handleError = (error: any) => {
+const handleError = (error: GhostError) => {
     console.error('Ghost API Error:', error);
     if (error.code === 'ERR_NOT_SUPPORT') {
         return null; // Return null for adapter errors during build
@@ -25,7 +29,7 @@ export async function getPosts() {
                 include: ['tags', 'authors']
             });
     } catch (error) {
-        return handleError(error) || [];
+        return handleError(error as GhostError) || [];
     }
 }
 
@@ -39,7 +43,7 @@ export async function getSinglePost(postSlug: string) {
                 include: ['tags', 'authors']
             });
     } catch (error) {
-        return handleError(error);
+        return handleError(error as GhostError);
     }
 }
 
@@ -51,7 +55,7 @@ export async function getPages() {
                 limit: 'all'
             });
     } catch (error) {
-        return handleError(error) || [];
+        return handleError(error as GhostError) || [];
     }
 }
 
@@ -63,7 +67,7 @@ export async function getSinglePage(pageSlug: string) {
                 slug: pageSlug
             });
     } catch (error) {
-        return handleError(error);
+        return handleError(error as GhostError);
     }
 }
 
@@ -75,6 +79,6 @@ export async function getTags() {
                 limit: 'all'
             });
     } catch (error) {
-        return handleError(error) || [];
+        return handleError(error as GhostError) || [];
     }
 }
