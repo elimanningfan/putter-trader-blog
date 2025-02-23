@@ -2,13 +2,16 @@ import { getPosts } from '../lib/ghost';
 import Image from 'next/image';
 import { Post } from './types';
 
+// This makes the page dynamic instead of static
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const posts = await getPosts() as Post[];
 
   return (
-    <main className="min-h-screen p-8 max-w-6xl mx-auto">
+    <main className="min-h-screen p-8">
       <h1 className="text-4xl font-bold mb-8">Latest Posts</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {posts.map((post: Post) => (
           <article key={post.id} className="border rounded-lg overflow-hidden shadow-lg">
             {post.feature_image && (
@@ -22,11 +25,11 @@ export default async function Home() {
               </div>
             )}
             <div className="p-4">
-              <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
+              <h2 className="text-xl font-bold mb-2">{post.title}</h2>
               <p className="text-gray-600 mb-4">{post.excerpt}</p>
               <a 
                 href={`/post/${post.slug}`} 
-                className="text-blue-600 hover:text-blue-800"
+                className="text-blue-500 hover:text-blue-700 mt-4 inline-block"
               >
                 Read more →
               </a>

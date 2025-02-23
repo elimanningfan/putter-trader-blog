@@ -3,6 +3,9 @@ import Image from 'next/image';
 import { Page } from '../../types';
 import { Metadata } from 'next';
 
+// This makes the page dynamic instead of static
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({
   params,
 }: {
