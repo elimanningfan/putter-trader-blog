@@ -7,7 +7,15 @@ import { Post } from './types';
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const posts = await getPosts() || [];
+  let posts: Post[] = [];
+  try {
+    const fetchedPosts = await getPosts();
+    if (fetchedPosts) {
+      posts = fetchedPosts;
+    }
+  } catch (error) {
+    console.error('Failed to fetch posts:', error);
+  }
 
   return (
     <div className="relative bg-gradient-to-br from-purple-900 to-purple-600 text-white">
@@ -33,35 +41,41 @@ export default async function Home() {
       {/* Posts Section */}
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post: Post) => (
-              <article key={post.id} className="flex flex-col">
-                {post.feature_image && (
-                  <Link href={`/post/${post.slug}`} className="relative block h-64 mb-4">
-                    <Image
-                      src={post.feature_image}
-                      alt={post.title}
-                      fill
-                      className="object-cover rounded-lg"
-                    />
+          {posts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {posts.map((post: Post) => (
+                <article key={post.id} className="flex flex-col">
+                  {post.feature_image && (
+                    <Link href={`/post/${post.slug}`} className="relative block h-64 mb-4">
+                      <Image
+                        src={post.feature_image}
+                        alt={post.title}
+                        fill
+                        className="object-cover rounded-lg"
+                      />
+                    </Link>
+                  )}
+                  <Link 
+                    href={`/post/${post.slug}`}
+                    className="text-xl font-bold text-gray-900 hover:text-purple-600 mb-2"
+                  >
+                    {post.title}
                   </Link>
-                )}
-                <Link 
-                  href={`/post/${post.slug}`}
-                  className="text-xl font-bold text-gray-900 hover:text-purple-600 mb-2"
-                >
-                  {post.title}
-                </Link>
-                <p className="text-gray-600 mb-4 flex-grow">{post.excerpt}</p>
-                <Link
-                  href={`/post/${post.slug}`}
-                  className="text-purple-600 hover:text-purple-800 font-medium"
-                >
-                  Read more →
-                </Link>
-              </article>
-            ))}
-          </div>
+                  <p className="text-gray-600 mb-4 flex-grow">{post.excerpt}</p>
+                  <Link
+                    href={`/post/${post.slug}`}
+                    className="text-purple-600 hover:text-purple-800 font-medium"
+                  >
+                    Read more →
+                  </Link>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg">No posts found. Check back soon!</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
