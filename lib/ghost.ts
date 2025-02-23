@@ -7,64 +7,74 @@ const api = new GhostContentAPI({
     version: 'v5.0'
 });
 
+// Helper function to handle API errors
+const handleError = (error: any) => {
+    console.error('Ghost API Error:', error);
+    if (error.code === 'ERR_NOT_SUPPORT') {
+        return null; // Return null for adapter errors during build
+    }
+    throw error; // Re-throw other errors
+};
+
 // Posts
 export async function getPosts() {
-    return await api.posts
-        .browse({
-            limit: 'all',
-            include: ['tags', 'authors']
-        })
-        .catch(err => {
-            console.error(err);
-            return [];
-        });
+    try {
+        return await api.posts
+            .browse({
+                limit: 'all',
+                include: ['tags', 'authors']
+            });
+    } catch (error) {
+        return handleError(error) || [];
+    }
 }
 
 // Single post
 export async function getSinglePost(postSlug: string) {
-    return await api.posts
-        .read({
-            slug: postSlug
-        }, {
-            include: ['tags', 'authors']
-        })
-        .catch(err => {
-            console.error(err);
-            return null;
-        });
-}
-
-// Tags
-export async function getTags() {
-    return await api.tags
-        .browse({
-            limit: 'all'
-        })
-        .catch(err => {
-            console.error(err);
-            return [];
-        });
+    try {
+        return await api.posts
+            .read({
+                slug: postSlug
+            }, {
+                include: ['tags', 'authors']
+            });
+    } catch (error) {
+        return handleError(error);
+    }
 }
 
 // Pages
 export async function getPages() {
-    return await api.pages
-        .browse({
-            limit: 'all'
-        })
-        .catch(err => {
-            console.error(err);
-            return [];
-        });
+    try {
+        return await api.pages
+            .browse({
+                limit: 'all'
+            });
+    } catch (error) {
+        return handleError(error) || [];
+    }
 }
 
+// Single page
 export async function getSinglePage(pageSlug: string) {
-    return await api.pages
-        .read({
-            slug: pageSlug
-        })
-        .catch(err => {
-            console.error(err);
-            return null;
-        });
+    try {
+        return await api.pages
+            .read({
+                slug: pageSlug
+            });
+    } catch (error) {
+        return handleError(error);
+    }
+}
+
+// Tags
+export async function getTags() {
+    try {
+        return await api.tags
+            .browse({
+                limit: 'all'
+            });
+    } catch (error) {
+        return handleError(error) || [];
+    }
 }
