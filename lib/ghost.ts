@@ -24,12 +24,66 @@ export interface GhostError {
   code?: string;
 }
 
+// Define Ghost content types
+export interface GhostImage {
+  url: string;
+  alt?: string;
+}
+
+export interface GhostAuthor {
+  id: string;
+  name: string;
+  slug: string;
+  profile_image?: string;
+  bio?: string;
+}
+
+export interface GhostTag {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export interface GhostPost {
+  id: string;
+  uuid: string;
+  title: string;
+  slug: string;
+  html: string;
+  feature_image?: string;
+  featured: boolean;
+  excerpt?: string;
+  custom_excerpt?: string;
+  visibility: string;
+  created_at: string;
+  updated_at: string;
+  published_at: string;
+  authors: GhostAuthor[];
+  tags: GhostTag[];
+}
+
+export interface GhostPage {
+  id: string;
+  uuid: string;
+  title: string;
+  slug: string;
+  html: string;
+  feature_image?: string;
+  excerpt?: string;
+  custom_excerpt?: string;
+  visibility: string;
+  created_at: string;
+  updated_at: string;
+  published_at: string;
+}
+
 // Helper function to handle API errors
-const handleError = (error: any): GhostError => {
+const handleError = (error: Error): GhostError => {
   console.error('Ghost API Error:', error);
   return {
     message: error.message || 'An error occurred while fetching data',
-    code: error.code
+    code: (error as GhostError).code
   };
 };
 
@@ -38,14 +92,14 @@ const tryFetch = async <T>(fetchFn: () => Promise<T>): Promise<T | null> => {
   try {
     return await fetchFn();
   } catch (error) {
-    handleError(error);
+    handleError(error as Error);
     return null;
   }
 };
 
 // Content API functions
 export async function getPosts() {
-  return tryFetch(() => 
+  return tryFetch<GhostPost[]>(() => 
     api.posts
       .browse({
         limit: 'all',
@@ -55,7 +109,7 @@ export async function getPosts() {
 }
 
 export async function getSinglePost(slug: string) {
-  return tryFetch(() =>
+  return tryFetch<GhostPost>(() =>
     api.posts
       .read({
         slug,
@@ -65,7 +119,7 @@ export async function getSinglePost(slug: string) {
 }
 
 export async function getPages() {
-  return tryFetch(() =>
+  return tryFetch<GhostPage[]>(() =>
     api.pages
       .browse({
         limit: 'all'
@@ -74,7 +128,7 @@ export async function getPages() {
 }
 
 export async function getSinglePage(slug: string) {
-  return tryFetch(() =>
+  return tryFetch<GhostPage>(() =>
     api.pages
       .read({
         slug
@@ -83,23 +137,23 @@ export async function getSinglePage(slug: string) {
 }
 
 // Admin API functions (only available if admin key is set)
-export async function createPage(data: any) {
+export async function createPage(data: Partial<GhostPage>) {
   if (!adminApi) {
     throw new Error('Admin API key not configured');
   }
-  return tryFetch(() => adminApi.pages.add(data));
+  return tryFetch<GhostPage>(() => adminApi.pages.add(data));
 }
 
-export async function updatePage(pageId: string, data: any) {
+export async function updatePage(pageId: string, data: Partial<GhostPage>) {
   if (!adminApi) {
     throw new Error('Admin API key not configured');
   }
-  return tryFetch(() => adminApi.pages.edit({ id: pageId, ...data }));
+  return tryFetch<GhostPage>(() => adminApi.pages.edit({ id: pageId, ...data }));
 }
 
 export async function deletePage(pageId: string) {
   if (!adminApi) {
     throw new Error('Admin API key not configured');
   }
-  return tryFetch(() => adminApi.pages.delete({ id: pageId }));
+  return tryFetch<void>(() => adminApi.pages.delete({ id: pageId }));
 }

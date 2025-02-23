@@ -1,7 +1,6 @@
 import { getSinglePost } from '../../../lib/ghost';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Post } from '../../types';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
