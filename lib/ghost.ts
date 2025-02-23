@@ -1,15 +1,7 @@
-import GhostContentAPI from '@tryghost/content-api';
 import GhostAdminAPI from '@tryghost/admin-api';
 
 const ghostUrl = process.env.NEXT_PUBLIC_GHOST_URL || 'http://localhost:2368';
 const ghostKey = process.env.NEXT_PUBLIC_GHOST_CONTENT_API_KEY || '';
-
-// Initialize the content API client
-const api = new GhostContentAPI({
-  url: ghostUrl,
-  key: ghostKey,
-  version: 'v5.0'
-});
 
 // Initialize the admin API client (if admin key is available)
 const adminKey = process.env.GHOST_ADMIN_API_KEY;
