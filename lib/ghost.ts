@@ -1,84 +1,105 @@
 import GhostContentAPI from '@tryghost/content-api';
+import GhostAdminAPI from '@tryghost/admin-api';
 
-// Create API instance with site credentials
+const ghostUrl = process.env.NEXT_PUBLIC_GHOST_URL || 'http://localhost:2368';
+const ghostKey = process.env.NEXT_PUBLIC_GHOST_CONTENT_API_KEY || '';
+
+// Initialize the content API client
 const api = new GhostContentAPI({
-    url: process.env.NEXT_PUBLIC_GHOST_URL || 'https://ghost-production-76af.up.railway.app',
-    key: process.env.NEXT_PUBLIC_GHOST_CONTENT_API_KEY || '',
-    version: 'v5.0'
+  url: ghostUrl,
+  key: ghostKey,
+  version: 'v5.0'
 });
 
-interface GhostError extends Error {
-    code?: string;
+// Initialize the admin API client (if admin key is available)
+const adminKey = process.env.GHOST_ADMIN_API_KEY;
+const adminApi = adminKey ? new GhostAdminAPI({
+  url: process.env.GHOST_ADMIN_API_URL || ghostUrl,
+  key: adminKey,
+  version: 'v5.0'
+}) : null;
+
+export interface GhostError {
+  message: string;
+  code?: string;
 }
 
 // Helper function to handle API errors
-const handleError = (error: GhostError) => {
-    console.error('Ghost API Error:', error);
-    if (error.code === 'ERR_NOT_SUPPORT') {
-        return null; // Return null for adapter errors during build
-    }
-    throw error; // Re-throw other errors
+const handleError = (error: any): GhostError => {
+  console.error('Ghost API Error:', error);
+  return {
+    message: error.message || 'An error occurred while fetching data',
+    code: error.code
+  };
 };
 
-// Posts
+// Wrapper function for error handling
+const tryFetch = async <T>(fetchFn: () => Promise<T>): Promise<T | null> => {
+  try {
+    return await fetchFn();
+  } catch (error) {
+    handleError(error);
+    return null;
+  }
+};
+
+// Content API functions
 export async function getPosts() {
-    try {
-        return await api.posts
-            .browse({
-                limit: 'all',
-                include: ['tags', 'authors']
-            });
-    } catch (error) {
-        return handleError(error as GhostError) || [];
-    }
+  return tryFetch(() => 
+    api.posts
+      .browse({
+        limit: 'all',
+        include: ['tags', 'authors']
+      })
+  );
 }
 
-// Single post
-export async function getSinglePost(postSlug: string) {
-    try {
-        return await api.posts
-            .read({
-                slug: postSlug
-            }, {
-                include: ['tags', 'authors']
-            });
-    } catch (error) {
-        return handleError(error as GhostError);
-    }
+export async function getSinglePost(slug: string) {
+  return tryFetch(() =>
+    api.posts
+      .read({
+        slug,
+        include: ['tags', 'authors']
+      })
+  );
 }
 
-// Pages
 export async function getPages() {
-    try {
-        return await api.pages
-            .browse({
-                limit: 'all'
-            });
-    } catch (error) {
-        return handleError(error as GhostError) || [];
-    }
+  return tryFetch(() =>
+    api.pages
+      .browse({
+        limit: 'all'
+      })
+  );
 }
 
-// Single page
-export async function getSinglePage(pageSlug: string) {
-    try {
-        return await api.pages
-            .read({
-                slug: pageSlug
-            });
-    } catch (error) {
-        return handleError(error as GhostError);
-    }
+export async function getSinglePage(slug: string) {
+  return tryFetch(() =>
+    api.pages
+      .read({
+        slug
+      })
+  );
 }
 
-// Tags
-export async function getTags() {
-    try {
-        return await api.tags
-            .browse({
-                limit: 'all'
-            });
-    } catch (error) {
-        return handleError(error as GhostError) || [];
-    }
+// Admin API functions (only available if admin key is set)
+export async function createPage(data: any) {
+  if (!adminApi) {
+    throw new Error('Admin API key not configured');
+  }
+  return tryFetch(() => adminApi.pages.add(data));
+}
+
+export async function updatePage(pageId: string, data: any) {
+  if (!adminApi) {
+    throw new Error('Admin API key not configured');
+  }
+  return tryFetch(() => adminApi.pages.edit({ id: pageId, ...data }));
+}
+
+export async function deletePage(pageId: string) {
+  if (!adminApi) {
+    throw new Error('Admin API key not configured');
+  }
+  return tryFetch(() => adminApi.pages.delete({ id: pageId }));
 }

@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Post } from '../../types';
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 
 // This makes the page dynamic instead of static
 export const dynamic = 'force-dynamic';
@@ -12,10 +13,16 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const post = await getSinglePost(params.slug) as Post | null;
+  const post = await getSinglePost(params.slug);
+  if (!post) {
+    return {
+      title: 'Post not found',
+      description: 'The requested post could not be found.',
+    };
+  }
   return {
-    title: post?.title || 'Post not found',
-    description: post?.excerpt || '',
+    title: post.title,
+    description: post.excerpt || '',
   };
 }
 
@@ -24,17 +31,10 @@ export default async function PostPage({
 }: {
   params: { slug: string };
 }) {
-  const post = await getSinglePost(params.slug) as Post | null;
+  const post = await getSinglePost(params.slug);
 
   if (!post) {
-    return (
-      <div className="min-h-screen p-8 max-w-3xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8">Post not found</h1>
-        <Link href="/" className="text-purple-600 hover:text-purple-800">
-          ← Back to home
-        </Link>
-      </div>
-    );
+    notFound();
   }
 
   return (
