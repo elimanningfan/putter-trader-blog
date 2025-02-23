@@ -87,53 +87,59 @@ const handleError = (error: Error): GhostError => {
   };
 };
 
-// Wrapper function for error handling
-const tryFetch = async <T>(fetchFn: () => Promise<T>): Promise<T | null> => {
+// Function to make a fetch request to the Ghost API
+async function fetchFromGhost<T>(endpoint: string, params: Record<string, string> = {}): Promise<T | null> {
   try {
-    return await fetchFn();
+    const searchParams = new URLSearchParams({
+      key: ghostKey,
+      ...params
+    });
+
+    const response = await fetch(`${ghostUrl}/ghost/api/content/${endpoint}?${searchParams.toString()}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data[endpoint.split('/')[0]] as T;
   } catch (error) {
     handleError(error as Error);
     return null;
   }
-};
+}
 
 // Content API functions
 export async function getPosts() {
-  return tryFetch<GhostPost[]>(() => 
-    api.posts
-      .browse({
-        limit: 'all',
-        include: ['tags', 'authors']
-      })
-  );
+  return fetchFromGhost<GhostPost[]>('posts', {
+    include: 'tags,authors',
+    limit: 'all'
+  });
 }
 
 export async function getSinglePost(slug: string) {
-  return tryFetch<GhostPost>(() =>
-    api.posts
-      .read({
-        slug,
-        include: ['tags', 'authors']
-      })
-  );
+  const posts = await fetchFromGhost<GhostPost[]>('posts', {
+    filter: `slug:${slug}`,
+    include: 'tags,authors'
+  });
+  return posts?.[0] || null;
 }
 
 export async function getPages() {
-  return tryFetch<GhostPage[]>(() =>
-    api.pages
-      .browse({
-        limit: 'all'
-      })
-  );
+  return fetchFromGhost<GhostPage[]>('pages', {
+    limit: 'all'
+  });
 }
 
 export async function getSinglePage(slug: string) {
-  return tryFetch<GhostPage>(() =>
-    api.pages
-      .read({
-        slug
-      })
-  );
+  const pages = await fetchFromGhost<GhostPage[]>('pages', {
+    filter: `slug:${slug}`
+  });
+  return pages?.[0] || null;
 }
 
 // Admin API functions (only available if admin key is set)
@@ -141,19 +147,33 @@ export async function createPage(data: Partial<GhostPage>) {
   if (!adminApi) {
     throw new Error('Admin API key not configured');
   }
-  return tryFetch<GhostPage>(() => adminApi.pages.add(data));
+  try {
+    return await adminApi.pages.add(data);
+  } catch (error) {
+    handleError(error as Error);
+    return null;
+  }
 }
 
 export async function updatePage(pageId: string, data: Partial<GhostPage>) {
   if (!adminApi) {
     throw new Error('Admin API key not configured');
   }
-  return tryFetch<GhostPage>(() => adminApi.pages.edit({ id: pageId, ...data }));
+  try {
+    return await adminApi.pages.edit({ id: pageId, ...data });
+  } catch (error) {
+    handleError(error as Error);
+    return null;
+  }
 }
 
 export async function deletePage(pageId: string) {
   if (!adminApi) {
     throw new Error('Admin API key not configured');
   }
-  return tryFetch<void>(() => adminApi.pages.delete({ id: pageId }));
+  try {
+    await adminApi.pages.delete({ id: pageId });
+  } catch (error) {
+    handleError(error as Error);
+  }
 }
