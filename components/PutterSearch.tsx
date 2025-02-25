@@ -29,7 +29,7 @@ export default function PutterSearch() {
 
       const data = await response.json();
       setResult(data.result);
-    } catch (_err) {
+    } catch {
       setError('Failed to get putter information. Please try again.');
     } finally {
       setIsLoading(false);
