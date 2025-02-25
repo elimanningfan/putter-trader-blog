@@ -11,6 +11,7 @@
     "ghost-admin": "ts-node scripts/ghost-admin.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.37.0",
     "@tryghost/admin-api": "^1.13.12",
     "@tryghost/content-api": "^1.11.21",
     "next": "15.1.7",
