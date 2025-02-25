@@ -1,4 +1,5 @@
 import styles from '../styles/PutterHeader.module.css';
+import Image from 'next/image';
 
 interface PutterHeaderProps {
   title: string;
@@ -26,7 +27,15 @@ export default function PutterHeader({ title, brand, year, keySpecs, imageUrl }:
         </div>
       </div>
       <div className={styles.headerImage}>
-        <img src={imageUrl} alt={title} />
+        <div className="relative w-full h-64 mb-6">
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            className="object-cover rounded-lg"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
       </div>
     </div>
   );

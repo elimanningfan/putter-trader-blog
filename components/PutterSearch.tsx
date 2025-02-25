@@ -29,7 +29,7 @@ export default function PutterSearch() {
 
       const data = await response.json();
       setResult(data.result);
-    } catch (err) {
+    } catch (_err) {
       setError('Failed to get putter information. Please try again.');
     } finally {
       setIsLoading(false);
@@ -46,9 +46,9 @@ export default function PutterSearch() {
       <div className="mb-4 text-sm text-gray-600">
         <p>Example searches:</p>
         <ul className="list-disc list-inside space-y-1 ml-2">
-          <li>"Tell me about the Scotty Cameron Newport 2"</li>
-          <li>"What's special about the TeI3 Del Mar?"</li>
-          <li>"Latest Phantom X series features"</li>
+          <li>&quot;Tell me about the Scotty Cameron Newport 2&quot;</li>
+          <li>&quot;What&apos;s special about the TeI3 Del Mar?&quot;</li>
+          <li>&quot;Latest Phantom X series features&quot;</li>
         </ul>
       </div>
 
